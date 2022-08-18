@@ -53,17 +53,17 @@ async def convert_(message: Message):
         await message.err("reply to media to convert it")
 
 
-@userge.on_cmd("upload", about={
+@userge.on_cmd("up", about={
     'header': "Upload files to telegram",
     'flags': {
         '-d': "upload as document",
         '-wt': "without thumb",
         '-r': "remove file after upload",
         '-df': "don't forward to log channel"},
-    'usage': "{tr}upload [flags] [file or folder path | link]",
+    'usage': "{tr}up [flags] [file or folder path | link]",
     'examples': [
-        "{tr}upload -d https://speed.hetzner.de/100MB.bin | test.bin",
-        "{tr}upload downloads/test.mp4"]}, del_pre=True, check_downpath=True)
+        "{tr}up -d https://speed.hetzner.de/100MB.bin | test.bin",
+        "{tr}up downloads/test.mp4"]}, del_pre=True, check_downpath=True)
 async def upload_to_tg(message: Message):
     """ upload to telegram """
     path_ = message.filtered_input_str
