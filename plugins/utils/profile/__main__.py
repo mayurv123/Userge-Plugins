@@ -14,6 +14,7 @@
 import os
 from datetime import datetime
 
+from pyrogram import enums
 from pyrogram.errors.exceptions.bad_request_400 import (
     UsernameOccupied, AboutTooLong, UsernameNotOccupied, VideoFileInvalid)
 
@@ -51,7 +52,7 @@ async def setname_(message: Message):
         await message.edit("```Last Name is Successfully Removed ...```", del_in=3)
         return
     if '-duname' in message.flags:
-        await userge.update_username(username="")
+        await userge.set_username(username="")
         await message.edit("```Username is successfully Removed ...```", del_in=3)
         return
     arg = message.filtered_input_str
@@ -66,7 +67,7 @@ async def setname_(message: Message):
         await message.edit("```Last Name is Successfully Updated ...```", del_in=3)
     elif '-uname' in message.flags:
         try:
-            await userge.update_username(username=arg.strip())
+            await userge.set_username(username=arg.strip())
         except UsernameOccupied:
             await message.err("Username is Not Available...")
         else:
@@ -199,34 +200,35 @@ async def view_profile(message: Message):
     if '-fname' in message.flags:
         await message.edit("```checking, wait plox !...```", del_in=3)
         first_name = user.first_name
-        await message.edit("<code>{}</code>".format(first_name), parse_mode='html')
+        await message.edit("<code>{}</code>".format(first_name), parse_mode=enums.ParseMode.HTML)
     elif '-lname' in message.flags:
         if not user.last_name:
             await message.err("User not have last name...")
         else:
             await message.edit("```checking, wait plox !...```", del_in=3)
             last_name = user.last_name
-            await message.edit("<code>{}</code>".format(last_name), parse_mode='html')
+            await message.edit("<code>{}</code>".format(last_name), parse_mode=enums.ParseMode.HTML)
     elif '-flname' in message.flags:
         await message.edit("```checking, wait plox !...```", del_in=3)
         if not user.last_name:
-            await message.edit("<code>{}</code>".format(user.first_name), parse_mode='html')
+            await message.edit(
+                "<code>{}</code>".format(user.first_name), parse_mode=enums.ParseMode.HTML)
         else:
             full_name = user.first_name + " " + user.last_name
-            await message.edit("<code>{}</code>".format(full_name), parse_mode='html')
+            await message.edit("<code>{}</code>".format(full_name), parse_mode=enums.ParseMode.HTML)
     elif '-bio' in message.flags:
         if not bio:
             await message.err("User not have bio...")
         else:
             await message.edit("`checking, wait plox !...`", del_in=3)
-            await message.edit("<code>{}</code>".format(bio), parse_mode='html')
+            await message.edit("<code>{}</code>".format(bio), parse_mode=enums.ParseMode.HTML)
     elif '-uname' in message.flags:
         if not user.username:
             await message.err("User not have username...")
         else:
             await message.edit("```checking, wait plox !...```", del_in=3)
             username = user.username
-            await message.edit("<code>{}</code>".format(username), parse_mode='html')
+            await message.edit("<code>{}</code>".format(username), parse_mode=enums.ParseMode.HTML)
     elif '-pp' in message.flags:
         if not user.photo:
             await message.err("profile photo not found!...")
@@ -254,7 +256,7 @@ async def del_pfp(message: Message):
         await message.edit(f"```Deleting first {del_c} Profile Photos ...```")
         start = datetime.now()
         ctr = 0
-        async for photo in userge.iter_profile_photos("me", limit=del_c):
+        async for photo in userge.get_chat_photos("me", limit=del_c):
             await userge.delete_profile_photos(photo.file_id)
             ctr += 1
         end = datetime.now()
@@ -368,7 +370,7 @@ async def revert_(message: Message):
         USER_DATA.clear()
     if os.path.exists(PHOTO):
         me = await userge.get_me()
-        photo = (await userge.get_profile_photos(me.id, limit=1))[0]
+        photo = [prof async for prof in userge.get_chat_photos(me.id, limit=1)][0]
         await userge.delete_profile_photos(photo.file_id)
         os.remove(PHOTO)
     await message.edit("```Profile is Successfully Reverted...```", del_in=3)

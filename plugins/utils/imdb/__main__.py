@@ -22,6 +22,7 @@ from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup
 )
+from pyrogram import enums
 
 from userge import userge, Message, config, pool
 from .. import imdb
@@ -60,7 +61,7 @@ async def _imdb(message: Message):
             chat_id=message.chat.id,
             photo=THUMB_PATH,
             caption=description,
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await message.delete()
     elif image_link is not None:
@@ -68,14 +69,14 @@ async def _imdb(message: Message):
             chat_id=message.chat.id,
             photo=image_link.replace("_V1_", "_V1_UX720"),
             caption=description,
-            parse_mode="html"
+            parse_mode=enums.ParseMode.HTML
         )
         await message.delete()
     else:
         await message.edit(
             description,
             disable_web_page_preview=True,
-            parse_mode="HTML"
+            parse_mode=enums.ParseMode.HTML
         )
 
 
@@ -129,7 +130,6 @@ async def get_movie_description(imdb_id, max_length):
 def get_countries_and_languages(soup):
     languages = soup.get("Language")
     countries = soup.get("CountryOfOrigin")
-    lg_text = ""
     if languages:
         if len(languages) > 1:
             lg_text = ', '.join(languages)
@@ -247,7 +247,7 @@ if userge.has_bot:
                     title=f" {title} {year}",
                     input_message_content=InputTextMessageContent(
                         message_text=message_text,
-                        parse_mode="html",
+                        parse_mode=enums.ParseMode.HTML,
                         disable_web_page_preview=False
                     ),
                     url=imdb_url,
@@ -266,15 +266,9 @@ if userge.has_bot:
                 )
             )
         resfo = srch_results.get("q")
-        await inline_query.answer(
-            results=oorse,
-            cache_time=300,
-            is_gallery=False,
-            is_personal=False,
-            next_offset="",
-            switch_pm_text=f"Found {len(oorse)} results for {resfo}",
-            switch_pm_parameter="imdb"
-        )
+        await inline_query.answer(results=oorse,
+                                  switch_pm_text=f"Found {len(oorse)} results for {resfo}",
+                                  switch_pm_parameter="imdb")
         inline_query.stop_propagation()
 
 
